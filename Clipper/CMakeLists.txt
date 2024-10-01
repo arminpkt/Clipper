@@ -20,8 +20,7 @@ juce_add_plugin(Clipper
 target_sources(Clipper
     PRIVATE
         PluginEditor.cpp
-        PluginProcessor.cpp
-        Clipper.h)
+        PluginProcessor.cpp)
 
 target_compile_definitions(Clipper
     PUBLIC

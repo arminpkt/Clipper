@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "Clipper.h"
+#include </Users/armin/Desktop/Uni/HKU/juceprojects/Clipper/Clipper/clipper.h>
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
