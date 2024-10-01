@@ -8,8 +8,8 @@
 #include <juce_dsp/juce_dsp.h>
 
 enum ClipperMode {
-  Tanh,
-  Sinusoidal
+  Sinusoidal,
+  Tanh
 };
 
 struct Clipper {
@@ -24,10 +24,10 @@ struct Clipper {
         break;
 
       case Sinusoidal:
-        if (abs(input) > 2/3) {
-          output = sin(input);
+        if (abs(input) > threshold) {
+          output = sgn(input);
         } else {
-          output = sin((sineCoefficientA * pi * input) / sineCoefficientB);
+          output = sin(((1/(2 * threshold)) * pi * input));
         }
         break;
     }
@@ -39,21 +39,24 @@ struct Clipper {
     this->mode = mode;
   }
 
-  void setTanhCoefficient (double coefficient) {
-    tanhCoefficient = coefficient;
+  void setThreshold (double thresh) {
+    threshold = thresh;
   }
 
-  void setSineCoefficients (double sineA, double sineB) {
-    sineCoefficientA = sineA;
-    sineCoefficientB = sineB;
+  void setTanhCoefficient (double coefficient) {
+    tanhCoefficient = coefficient;
   }
 
 private:
   double pi = acos(-1);
 
-  double tanhCoefficient { 5.0 };
-  double sineCoefficientA { 3.0 };
-  double sineCoefficientB { 4.0 };
   ClipperMode mode {ClipperMode::Sinusoidal};
+  double threshold { 0.66 };
+  double tanhCoefficient { 5.0 };
+
+  // signum function
+  double sgn (double x) {
+    return (0 < x) - (x < 0);
+  }
 
 };

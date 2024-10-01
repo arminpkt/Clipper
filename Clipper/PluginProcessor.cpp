@@ -15,14 +15,12 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
     // Use the parameter ID to return a pointer to our parameter data
     clipperMode = params.getRawParameterValue("uMode");
+    threshold = params.getRawParameterValue("uThreshold");
     tanhCoefficient = params.getRawParameterValue("uTanh");
-    sineCoefficientA = params.getRawParameterValue("uSineA");
-    sineCoefficientB = params.getRawParameterValue("uSineB");
 
     // for each input channel emplace one filter
     for(auto i = 0; i < getBusesLayout().getNumChannels(true, 0); ++i){
         clippers.emplace_back();
-
     }
 }
 
@@ -139,9 +137,9 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     juce::ignoreUnused (midiMessages);
 
     for(auto & clipper : clippers){
-        clipper.setTanhCoefficient(*tanhCoefficient);
-        clipper.setSineCoefficients(*sineCoefficientA, *sineCoefficientB);
-        clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
+      clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
+      clipper.setThreshold(*threshold);
+      clipper.setTanhCoefficient(*tanhCoefficient);
     }
 
     juce::ScopedNoDenormals noDenormals;
@@ -208,18 +206,15 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uThreshold", 1},
+        "Threshold", 0.1, 1, 0.66));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
         "Tanh", 0.1, 10.0, 5));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uSineA", 1},
-        "SineA", 0.1, 10.0, 3));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uSineB", 1},
-        "SineB", 0.1, 10.0, 4));
-
     juce::StringArray stringArray;
-    stringArray.add ("Tanh");
     stringArray.add ("Sinusoidal");
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1}, "Mode", stringArray, 1));
+    stringArray.add ("Tanh");
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1}, "Mode", stringArray, 0));
 
     return layout;
 }
