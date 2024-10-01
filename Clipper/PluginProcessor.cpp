@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+//#include <juce_dsp/juce_dsp.h>
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -10,8 +11,16 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), params(*this, nullptr, "Parameters", createParameterLayout())
 {
+    // Use the parameter ID to return a pointer to our parameter data
+    tanhCoefficient = params.getRawParameterValue("uTanh");
+
+    // for each input channel emplace one filter
+    for(auto i = 0; i < getBusesLayout().getNumChannels(true, 0); ++i){
+        clippers.emplace_back();
+
+    }
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -126,6 +135,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 {
     juce::ignoreUnused (midiMessages);
 
+    for(auto & clipper : clippers){
+        clipper.setTanhCoefficient(*tanhCoefficient);
+    }
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -147,9 +160,12 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
+        auto* writePointer = buffer.getWritePointer (channel);
+        auto* readPointer = buffer.getReadPointer (channel);
+		for(auto sample = 0; sample < buffer.getNumSamples(); ++sample){
+			//writePointer[sample] = juce::dsp::FastMathApproximations::tanh (5 * readPointer[sample]);
+		    writePointer[sample] = clippers[channel].process(readPointer[sample]);
+		}
     }
 }
 
@@ -178,6 +194,13 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
+        "Tanh", 0.1, 10.0, 5));
+    return layout;
 }
 
 //==============================================================================
