@@ -1,7 +1,23 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "/Users/armin/Desktop/Uni/HKU/juceprojects/Clipper/Clipper/Clipper.h"
+#include <juce_dsp/juce_dsp.h>
+
+struct Clipper {
+  Clipper() {}
+
+  double process (double input) {
+    return juce::dsp::FastMathApproximations::tanh (tanhCoefficient * input);
+  }
+
+  void setTanhCoefficient (double coefficient) {
+    tanhCoefficient = coefficient;
+  }
+
+private:
+  double tanhCoefficient { 5.0 };
+
+};
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
