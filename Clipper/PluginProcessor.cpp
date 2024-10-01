@@ -14,7 +14,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        ), params(*this, nullptr, "Parameters", createParameterLayout())
 {
     // Use the parameter ID to return a pointer to our parameter data
+    clipperMode = params.getRawParameterValue("uMode");
     tanhCoefficient = params.getRawParameterValue("uTanh");
+    sineCoefficientA = params.getRawParameterValue("uSineA");
+    sineCoefficientB = params.getRawParameterValue("uSineB");
 
     // for each input channel emplace one filter
     for(auto i = 0; i < getBusesLayout().getNumChannels(true, 0); ++i){
@@ -137,6 +140,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     for(auto & clipper : clippers){
         clipper.setTanhCoefficient(*tanhCoefficient);
+        clipper.setSineCoefficients(*sineCoefficientA, *sineCoefficientB);
+        clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
     }
 
     juce::ScopedNoDenormals noDenormals;
@@ -186,20 +191,36 @@ void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    juce::ignoreUnused (destData);
+    auto state = params.copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    juce::ignoreUnused (data, sizeInBytes);
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName (params.state.getType()))
+            params.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
         "Tanh", 0.1, 10.0, 5));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uSineA", 1},
+        "SineA", 0.1, 10.0, 3));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uSineB", 1},
+        "SineB", 0.1, 10.0, 4));
+
+    juce::StringArray stringArray;
+    stringArray.add ("Tanh");
+    stringArray.add ("Sinusoidal");
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1}, "Mode", stringArray, 1));
+
     return layout;
 }
 
