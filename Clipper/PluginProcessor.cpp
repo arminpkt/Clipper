@@ -17,6 +17,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     clipperMode = params.getRawParameterValue("uMode");
     threshold = params.getRawParameterValue("uThreshold");
     tanhCoefficient = params.getRawParameterValue("uTanh");
+    exponent = params.getRawParameterValue("uExponent");
+    gain = params.getRawParameterValue("uGain");
 
     // for each input channel emplace one filter
     for(auto i = 0; i < getBusesLayout().getNumChannels(true, 0); ++i){
@@ -140,6 +142,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
       clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
       clipper.setThreshold(*threshold);
       clipper.setTanhCoefficient(*tanhCoefficient);
+      clipper.setExponent(*exponent);
+      clipper.setGain(*gain);
     }
 
     juce::ScopedNoDenormals noDenormals;
@@ -210,11 +214,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         "Threshold", 0.1, 1, 0.66));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
         "Tanh", 0.1, 10.0, 5));
-
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uExponent", 1},
+        "Exp", 0.1, 10.0, 2));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uGain", 1},
+        "Gain", 0.0, 1.5, 1.0));
     juce::StringArray stringArray;
-    stringArray.add ("Sinusoidal");
     stringArray.add ("Tanh");
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1}, "Mode", stringArray, 0));
+    stringArray.add ("Sinusoidal");
+    stringArray.add ("Exponential");
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1}, "Mode", stringArray, 1));
 
     return layout;
 }
