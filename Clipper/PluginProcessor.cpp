@@ -100,7 +100,10 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+    juce::ignoreUnused (samplesPerBlock);
+    for(auto & clipper : clippers){
+        clipper.prepare(sampleRate);
+    }
 }
 
 void AudioPluginAudioProcessor::releaseResources()
