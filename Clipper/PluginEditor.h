@@ -18,5 +18,14 @@ private:
     // access the processor object that created it.
     AudioPluginAudioProcessor& processorRef;
 
+    juce::Label titleLabel, thresholdLabel, gainLabel, tanhLabel, exponentLabel, modeLabel;
+
+    juce::Slider thresholdSlider, gainSlider, tanhSlider, exponentSlider;
+
+    juce::ComboBox modeMenu;
+
+    juce::AudioProcessorValueTreeState::SliderAttachment thresholdAttachment, gainAttachment, tanhAttachment, exponentAttachment;
+    juce::AudioProcessorValueTreeState::ComboBoxAttachment modeAttachment;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
