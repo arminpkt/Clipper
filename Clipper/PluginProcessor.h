@@ -48,7 +48,7 @@ public:
 
 private:
     //==============================================================================
-    std::atomic<float>  *clipperMode, *threshold, *tanhCoefficient, *exponent, *gain;
+    std::atomic<float>  *clipperMode, *thresholdInDB, *tanhCoefficient, *exponent, *gainInDB;
     std::vector<Clipper> clippers;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

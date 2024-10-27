@@ -15,10 +15,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
     // Use the parameter ID to return a pointer to our parameter data
     clipperMode = params.getRawParameterValue("uMode");
-    threshold = params.getRawParameterValue("uThreshold");
+    thresholdInDB = params.getRawParameterValue("uThreshold");
     tanhCoefficient = params.getRawParameterValue("uTanh");
     exponent = params.getRawParameterValue("uExponent");
-    gain = params.getRawParameterValue("uGain");
+    gainInDB = params.getRawParameterValue("uGain");
 
     // for each input channel emplace one filter
     for(auto i = 0; i < getBusesLayout().getNumChannels(true, 0); ++i){
@@ -143,10 +143,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     for(auto & clipper : clippers){
       clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
-      clipper.setThreshold(*threshold);
+      clipper.setThreshold(juce::Decibels::decibelsToGain(thresholdInDB->load()));
       clipper.setTanhCoefficient(*tanhCoefficient);
       clipper.setExponent(*exponent);
-      clipper.setGain(*gain);
+      clipper.setGain(juce::Decibels::decibelsToGain(gainInDB->load()));
     }
 
     juce::ScopedNoDenormals noDenormals;
@@ -214,18 +214,25 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uThreshold", 1},
-        "Threshold", 0.1, 1, 0.66));
+        "Threshold", juce::NormalisableRange<float>(-51.8, 0, 0.01, 3.0),
+        -4.4, juce::String(), juce::AudioProcessorParameter::genericParameter,
+        [](float value, int) { return juce::String(value, 2) + " dB"; }));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
         "Tanh", 0.1, 10.0, 5));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uExponent", 1},
         "Exp", 0.1, 10.0, 2));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uGain", 1},
-        "Gain", 0.0, 1.5, 1.0));
+        "Gain", juce::NormalisableRange<float>(-70.0, 6.0, 0.01, 2.5),
+        0.0, juce::String(), juce::AudioProcessorParameter::genericParameter,
+        [](float value, int) {
+            return value <= -70.f ? "-inf dB" : juce::String(value, 2) + " dB";
+        }));
     juce::StringArray stringArray;
     stringArray.add ("Tanh");
     stringArray.add ("Sinusoidal");
     stringArray.add ("Exponential");
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1}, "Mode", stringArray, 1));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1},
+        "Mode", stringArray, 1));
 
     return layout;
 }

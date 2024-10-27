@@ -14,8 +14,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setSize(400, 300);
 
-    modeMenu.setSelectedId(*processorRef.params.getRawParameterValue("uMode") + 1);
-
     titleLabel.setFont(juce::Font(16.0f, juce::Font::bold));
     titleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     titleLabel.setJustificationType(juce::Justification::centred);
@@ -24,6 +22,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     thresholdSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
+    thresholdSlider.setPopupDisplayEnabled (true, true, this);
     addAndMakeVisible (&thresholdSlider);
 
     thresholdLabel.setFont(juce::Font(14.0f, juce::Font::plain));
@@ -34,6 +33,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     gainSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
+    gainSlider.setPopupDisplayEnabled (true, true, this);
     addAndMakeVisible (&gainSlider);
 
     gainLabel.setFont(juce::Font(14.0f, juce::Font::plain));
@@ -44,6 +44,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     tanhSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     tanhSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
+    tanhSlider.setPopupDisplayEnabled (true, true, this);
     addAndMakeVisible (&tanhSlider);
 
     tanhLabel.setFont(juce::Font(14.0f, juce::Font::plain));
@@ -54,6 +55,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     exponentSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     exponentSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
+    exponentSlider.setPopupDisplayEnabled (true, true, this);
     addAndMakeVisible (&exponentSlider);
 
     exponentLabel.setFont(juce::Font(14.0f, juce::Font::plain));
@@ -65,6 +67,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     modeMenu.addItem("Tanh", ClipperMode::Tanh + 1);
     modeMenu.addItem("Sinusoidal", ClipperMode::Sinusoidal + 1);
     modeMenu.addItem("Exponential", ClipperMode::Exponential + 1);
+    modeMenu.addListener(this);
+    modeMenu.setSelectedId(*processorRef.params.getRawParameterValue("uMode") + 1);
     addAndMakeVisible (&modeMenu);
 
     modeLabel.setFont(juce::Font(14.0f, juce::Font::plain));
@@ -98,13 +102,15 @@ void AudioPluginAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
 
     titleLabel.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.1));
-    auto mainArea = bounds.removeFromTop (bounds.getHeight() * 0.6);
-    auto sideArea = bounds;
-    auto thresholdArea = mainArea.removeFromLeft(mainArea.getWidth()/2);
-    auto gainArea = mainArea;
-    auto modeArea = sideArea.removeFromLeft(sideArea.getWidth()/3);
-    auto exponentArea = sideArea.removeFromLeft(sideArea.getWidth()/2);
-    auto tanhArea = (sideArea);
+    auto mainArea = bounds.removeFromTop (bounds.getHeight() * 0.8);
+    auto tanhArea = mainArea;
+    auto thresholdArea = mainArea.removeFromLeft(mainArea.getWidth() * 0.4);
+    auto gainArea = mainArea.removeFromRight(mainArea.getWidth() * 2/3);
+    auto exponentArea = mainArea;
+    auto modeArea = bounds;
+
+    modeMenu.setBounds(modeArea.removeFromTop(modeArea.getHeight() * sliderLabelRatio));
+    modeLabel.setBounds(modeArea);
 
     thresholdSlider.setBounds(thresholdArea.removeFromTop(thresholdArea.getHeight() * sliderLabelRatio));
     thresholdLabel.setBounds(thresholdArea);
@@ -112,12 +118,48 @@ void AudioPluginAudioProcessorEditor::resized()
     gainSlider.setBounds(gainArea.removeFromTop(gainArea.getHeight() * sliderLabelRatio));
     gainLabel.setBounds(gainArea);
 
-    modeMenu.setBounds(modeArea.removeFromTop(modeArea.getHeight() * sliderLabelRatio));
-    modeLabel.setBounds(modeArea);
-
     exponentSlider.setBounds(exponentArea.removeFromTop(exponentArea.getHeight() * sliderLabelRatio));
     exponentLabel.setBounds(exponentArea);
 
     tanhSlider.setBounds(tanhArea.removeFromTop(tanhArea.getHeight() * sliderLabelRatio));
     tanhLabel.setBounds(tanhArea);
 }
+
+void AudioPluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox *comboBox) {
+    if (comboBox == &modeMenu) {
+        thresholdSlider.setVisible(false);
+        thresholdLabel.setVisible(false);
+        tanhSlider.setVisible(false);
+        tanhLabel.setVisible(false);
+        exponentSlider.setVisible(false);
+        exponentLabel.setVisible(false);
+        gainSlider.setVisible(false);
+        gainLabel.setVisible(false);
+
+        switch (modeMenu.getSelectedId()-1) {
+            case ClipperMode::Tanh:
+                tanhSlider.setVisible(true);
+                tanhLabel.setVisible(true);
+                break;
+            case ClipperMode::Sinusoidal:
+                thresholdSlider.setVisible(true);
+                thresholdLabel.setVisible(true);
+                gainSlider.setVisible(true);
+                gainLabel.setVisible(true);
+                break;
+            case ClipperMode::Exponential:
+                thresholdSlider.setVisible(true);
+                thresholdLabel.setVisible(true);
+                exponentSlider.setVisible(true);
+                exponentLabel.setVisible(true);
+                gainSlider.setVisible(true);
+                gainLabel.setVisible(true);
+                break;
+            default:
+                break;
+        }
+
+        resized();
+    }
+}
+
