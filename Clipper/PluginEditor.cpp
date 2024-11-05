@@ -103,9 +103,10 @@ void AudioPluginAudioProcessorEditor::resized()
 
     titleLabel.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.1));
     auto mainArea = bounds.removeFromTop (bounds.getHeight() * 0.8);
-    auto tanhArea = mainArea;
+
     auto thresholdArea = mainArea.removeFromLeft(mainArea.getWidth() * 0.4);
     auto gainArea = mainArea.removeFromRight(mainArea.getWidth() * 2/3);
+    auto tanhArea = mainArea;
     auto exponentArea = mainArea;
     auto modeArea = bounds;
 
@@ -138,6 +139,10 @@ void AudioPluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox *comboBox) 
 
         switch (modeMenu.getSelectedId()-1) {
             case ClipperMode::Tanh:
+                thresholdSlider.setVisible(true);
+                thresholdLabel.setVisible(true);
+                gainSlider.setVisible(true);
+                gainLabel.setVisible(true);
                 tanhSlider.setVisible(true);
                 tanhLabel.setVisible(true);
                 break;

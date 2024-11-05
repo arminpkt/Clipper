@@ -28,28 +28,33 @@ struct Clipper {
 
   double process (double input) {
     double output = input;
-
+    double thresh = threshold.getNextValue();
+    double nextGain = gain.getNextValue();
     switch (mode) {
       case Tanh:
-        output = juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue() * input);
+        // old: output = juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue() * input) / juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue());
+        if (abs(input) > thresh) {
+          output = sgn(input) * (thresh + juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue() * (abs(input) - thresh)));
+        }
+        output *= nextGain;
         break;
 
       case Sinusoidal:
-        if (abs(input) > threshold.getNextValue()) {
+        if (abs(input) > thresh) {
           output = sgn(input);
         } else {
-          output = sin(((1/(2 * threshold.getNextValue())) * pi * input));
+          output = sin(((1/(2 * thresh)) * pi * input));
         }
-        output *= threshold.getNextValue() * gain.getNextValue();
+        output *= thresh * nextGain;
         break;
 
       case Exponential:
-        if (abs(input) > threshold.getNextValue()) {
+        if (abs(input) > thresh) {
           output = sgn(input);
         } else {
-          output = sgn(input) * (1 - pow(abs((1/threshold.getNextValue()) * input - sgn(input)), exponent.getNextValue()));
+          output = sgn(input) * (1 - pow(abs((1/thresh) * input - sgn(input)), exponent.getNextValue()));
         }
-        output *= threshold.getNextValue() * gain.getNextValue();
+        output *= thresh * nextGain;
         break;
     }
 
@@ -81,12 +86,12 @@ private:
 
   ClipperMode mode {ClipperMode::Sinusoidal};
   juce::SmoothedValue<double> threshold { 0.66 };
-  juce::SmoothedValue<double> tanhCoefficient { 5.0 };
+  juce::SmoothedValue<double> tanhCoefficient { 1.0 };
   juce::SmoothedValue<double> exponent { 2.0 };
   juce::SmoothedValue<double> gain { 1.0 };
 
   // signum function
-  static double sgn (double x) {
+  double sgn (double x) {
     return (0 < x) - (x < 0);
   }
 

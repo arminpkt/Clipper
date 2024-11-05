@@ -15,7 +15,9 @@ juce_add_plugin(Clipper
     PLUGIN_CODE Clpr                            
       
     FORMATS AU VST3 Standalone                  
-    PRODUCT_NAME "Clipper")   
+    PRODUCT_NAME "Clipper")
+
+juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperknob1.png Resources/clipperknob2.png)
 
 target_sources(Clipper
     PRIVATE
@@ -32,7 +34,21 @@ target_compile_definitions(Clipper
 target_link_libraries(Clipper
     PRIVATE
         juce::juce_audio_utils
+        ClipperBinaryData
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+#set(VST3_DESTINATION "/Library/Audio/Plug-Ins/VST3/")
+#set(AU_DESTINATION "/Library/Audio/Plug-Ins/Components/")
+
+# Copy VST3 and AU files upon build completion
+#add_custom_command(TARGET Clipper POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy
+#        "$<TARGET_FILE_DIR:Clipper>/Clipper.vst3"
+#        "${VST3_DESTINATION}/Clipper.vst3"
+#        COMMAND ${CMAKE_COMMAND} -E copy
+#        "$<TARGET_FILE_DIR:Clipper>/Clipper.component"
+#        "${AU_DESTINATION}/Clipper.component"
+#)

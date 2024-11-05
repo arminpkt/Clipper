@@ -140,7 +140,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
     juce::ignoreUnused (midiMessages);
-
+    DBG (juce::Decibels::decibelsToGain(thresholdInDB->load()));
     for(auto & clipper : clippers){
       clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
       clipper.setThreshold(juce::Decibels::decibelsToGain(thresholdInDB->load()));
@@ -218,7 +218,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         -4.4, juce::String(), juce::AudioProcessorParameter::genericParameter,
         [](float value, int) { return juce::String(value, 2) + " dB"; }));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
-        "Tanh", 0.1, 10.0, 5));
+        "Tanh", 0.1, 10.0, 1.0));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uExponent", 1},
         "Exp", 0.1, 10.0, 2));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uGain", 1},
