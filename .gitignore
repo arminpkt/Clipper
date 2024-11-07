@@ -1,5 +1,4 @@
-/JUCE/
+#/JUCE/
 /build/
 /cmake-build-debug/
 /.idea/
-JUCE

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "CustomLookAndFeel.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, public juce::ComboBox::Listener
@@ -24,6 +25,11 @@ private:
     juce::Slider thresholdSlider, gainSlider, tanhSlider, exponentSlider;
 
     juce::ComboBox modeMenu;
+
+    juce::Image backgroundImage1, backgroundImage2, knobImage1, knobImage2;
+
+    std::unique_ptr<CustomSliderLookAndFeel> sliderLookAndFeel1, sliderLookAndFeel2;
+    CustomComboBoxLookAndFeel comboBoxLookAndFeel;
 
     juce::AudioProcessorValueTreeState::SliderAttachment thresholdAttachment, gainAttachment, tanhAttachment, exponentAttachment;
     juce::AudioProcessorValueTreeState::ComboBoxAttachment modeAttachment;
