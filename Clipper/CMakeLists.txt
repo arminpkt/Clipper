@@ -18,7 +18,7 @@ juce_add_plugin(Clipper
     PRODUCT_NAME "Clipper")
 
 #juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperbg2.png Resources/clipperknob1.png Resources/clipperknob2.png Resources/PlusJakartaSans_Medium.ttf)
-juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.svg Resources/clipperbg2.svg Resources/clipperknob1.svg Resources/clipperknob2.svg Resources/PlusJakartaSans_Medium.ttf)
+juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperbg2.png Resources/clipperknob1.svg Resources/clipperknob2.svg Resources/PlusJakartaSans_Medium.ttf)
 
 target_sources(Clipper
     PRIVATE

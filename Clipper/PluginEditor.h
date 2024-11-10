@@ -26,7 +26,8 @@ private:
 
     juce::ComboBox modeMenu;
 
-     std::unique_ptr<juce::Drawable> backgroundDrawable1, backgroundDrawable2, knobDrawable1, knobDrawable2;
+    juce::Image backgroundImage1, backgroundImage2;
+    std::unique_ptr<juce::Drawable> knobDrawable1, knobDrawable2;
 
     std::unique_ptr<CustomSliderLookAndFeel> sliderLookAndFeel1, sliderLookAndFeel2;
     CustomComboBoxLookAndFeel comboBoxLookAndFeel;

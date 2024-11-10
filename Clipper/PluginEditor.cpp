@@ -14,15 +14,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
 
-    /*
     backgroundImage1 = juce::ImageFileFormat::loadFrom(BinaryData::clipperbg_png, BinaryData::clipperbg_pngSize);
     backgroundImage2 = juce::ImageFileFormat::loadFrom(BinaryData::clipperbg2_png, BinaryData::clipperbg2_pngSize);
-    knobImage1 = juce::ImageFileFormat::loadFrom(BinaryData::clipperknob1_png, BinaryData::clipperknob1_pngSize);
-    knobImage2 = juce::ImageFileFormat::loadFrom(BinaryData::clipperknob2_png, BinaryData::clipperknob2_pngSize);
-    */
 
-    backgroundDrawable1 = juce::Drawable::createFromImageData(BinaryData::clipperbg_svg, BinaryData::clipperbg_svgSize);
-    backgroundDrawable2 = juce::Drawable::createFromImageData(BinaryData::clipperbg2_svg, BinaryData::clipperbg2_svgSize);
     knobDrawable1 = juce::Drawable::createFromImageData(BinaryData::clipperknob1_svg, BinaryData::clipperknob1_svgSize);
     knobDrawable2 = juce::Drawable::createFromImageData(BinaryData::clipperknob2_svg, BinaryData::clipperknob2_svgSize);
 
@@ -122,15 +116,11 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     juce::Rectangle<float> bounds = getLocalBounds().toFloat();
 
     if (modeMenu.getSelectedId() - 1 == ClipperMode::Sinusoidal) {
-        if (backgroundDrawable2 != nullptr) {
-            backgroundDrawable2->setTransformToFit(bounds, juce::RectanglePlacement::stretchToFit);
-            backgroundDrawable2->draw(g, 1.0f);
-        }
+        if (!backgroundImage2.isNull())
+            g.drawImage(backgroundImage2, bounds, juce::RectanglePlacement::stretchToFit);
     } else {
-        if (backgroundDrawable1 != nullptr) {
-            backgroundDrawable1->setTransformToFit(bounds, juce::RectanglePlacement::stretchToFit);
-            backgroundDrawable1->draw(g, 1.0f);
-        }
+        if (!backgroundImage1.isNull())
+            g.drawImage(backgroundImage1, bounds, juce::RectanglePlacement::stretchToFit);
     }
 }
 
