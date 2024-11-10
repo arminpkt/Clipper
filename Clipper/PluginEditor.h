@@ -26,13 +26,15 @@ private:
 
     juce::ComboBox modeMenu;
 
-    juce::Image backgroundImage1, backgroundImage2, knobImage1, knobImage2;
+     std::unique_ptr<juce::Drawable> backgroundDrawable1, backgroundDrawable2, knobDrawable1, knobDrawable2;
 
     std::unique_ptr<CustomSliderLookAndFeel> sliderLookAndFeel1, sliderLookAndFeel2;
     CustomComboBoxLookAndFeel comboBoxLookAndFeel;
 
     juce::AudioProcessorValueTreeState::SliderAttachment thresholdAttachment, gainAttachment, tanhAttachment, exponentAttachment;
     juce::AudioProcessorValueTreeState::ComboBoxAttachment modeAttachment;
+
+    float fontSize = {18.0f};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

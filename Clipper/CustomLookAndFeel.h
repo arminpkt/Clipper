@@ -8,36 +8,33 @@
 class CustomSliderLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    CustomSliderLookAndFeel(juce::Image knobImage) : knobImage(knobImage) {}
+    CustomSliderLookAndFeel(std::unique_ptr<juce::Drawable> kD) : knobDrawable(std::move(kD)) {}
 
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
                           float sliderPos, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override
     {
-        if (knobImage.isValid())
-        {
-            // Calculate rotation angle based on the slider's position
+        if (knobDrawable != nullptr) {
             const float rotation = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-
-            // Calculate the center of the slider area
             const float centerX = x + width * 0.5f;
             const float centerY = y + height * 0.5f;
 
-            // Ensure the image is centered and sized to the slider's area
-            const float imageSize = juce::jmin(width, height);
+            // Calculate scale factor based on slider size
+            float scaleX = (float) width / knobDrawable->getWidth();
+            float scaleY = (float) height / knobDrawable->getHeight();
 
-            // Calculate top-left position of the image to keep it centered
-            const float imageX = centerX - imageSize * 0.5f;
-            const float imageY = centerY - imageSize * 0.5f;
+            // Apply both scaling and rotation transformations
+            juce::AffineTransform transform = juce::AffineTransform::scale(scaleX, scaleY)
+                                              .rotated(rotation, centerX, centerY);
 
-            // Draw the image with rotation around its center
-            g.drawImageTransformed(knobImage.rescaled(static_cast<int>(imageSize), static_cast<int>(imageSize)),
-                                   juce::AffineTransform::rotation(rotation, centerX, centerY)
-                                   .translated(imageX - x, imageY - y));
+            knobDrawable->setTransform(transform);
+
+            // Draw the drawable using its own bounds
+            knobDrawable->draw(g, 1.0f);
         }
     }
 
 private:
-    juce::Image knobImage;
+    std::unique_ptr<juce::Drawable> knobDrawable;
 };
 
 class CustomComboBoxLookAndFeel : public juce::LookAndFeel_V4
@@ -54,6 +51,10 @@ public:
     juce::FontOptions clipperFont = {juce::Typeface::createSystemTypefaceFor(BinaryData::PlusJakartaSans_Medium_ttf, BinaryData::PlusJakartaSans_Medium_ttfSize)};
 
     float fontSize = 18.f;
+
+    void setFontSize(float newSize) {
+        fontSize = newSize;
+    }
 
     juce::Font getComboBoxFont (juce::ComboBox& box)
     {

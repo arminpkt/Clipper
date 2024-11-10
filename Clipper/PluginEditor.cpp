@@ -14,19 +14,31 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
 
+    /*
     backgroundImage1 = juce::ImageFileFormat::loadFrom(BinaryData::clipperbg_png, BinaryData::clipperbg_pngSize);
     backgroundImage2 = juce::ImageFileFormat::loadFrom(BinaryData::clipperbg2_png, BinaryData::clipperbg2_pngSize);
     knobImage1 = juce::ImageFileFormat::loadFrom(BinaryData::clipperknob1_png, BinaryData::clipperknob1_pngSize);
     knobImage2 = juce::ImageFileFormat::loadFrom(BinaryData::clipperknob2_png, BinaryData::clipperknob2_pngSize);
+    */
 
-    setSize(backgroundImage1.getWidth(), backgroundImage1.getHeight());
-    //setSize(400, 290);
+    backgroundDrawable1 = juce::Drawable::createFromImageData(BinaryData::clipperbg_svg, BinaryData::clipperbg_svgSize);
+    backgroundDrawable2 = juce::Drawable::createFromImageData(BinaryData::clipperbg2_svg, BinaryData::clipperbg2_svgSize);
+    knobDrawable1 = juce::Drawable::createFromImageData(BinaryData::clipperknob1_svg, BinaryData::clipperknob1_svgSize);
+    knobDrawable2 = juce::Drawable::createFromImageData(BinaryData::clipperknob2_svg, BinaryData::clipperknob2_svgSize);
 
-    sliderLookAndFeel1 = std::make_unique<CustomSliderLookAndFeel>(knobImage1);
-    sliderLookAndFeel2 = std::make_unique<CustomSliderLookAndFeel>(knobImage2);
+    //setSize(backgroundImage1.getWidth(), backgroundImage1.getHeight());
+    setSize(400, 290);
+    setResizable(true, true); // Allow resizing
+    setResizeLimits(400, 290, 800, 580); // Minimum and maximum sizes maintaining aspect ratio
+    getConstrainer()->setFixedAspectRatio(400.0 / 290.0); // Keep aspect ratio of 400x290 (original size)
+
+
+    sliderLookAndFeel1 = std::make_unique<CustomSliderLookAndFeel>(knobDrawable1->createCopy());
+    sliderLookAndFeel2 = std::make_unique<CustomSliderLookAndFeel>(knobDrawable2->createCopy());
+
 
     juce::FontOptions clipperFont = {juce::Typeface::createSystemTypefaceFor(BinaryData::PlusJakartaSans_Medium_ttf, BinaryData::PlusJakartaSans_Medium_ttfSize)};
-    float fontSize = 18.f;
+   //float fontSize = 18.f;
 
     thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     thresholdSlider.setLookAndFeel(sliderLookAndFeel1.get());
@@ -107,27 +119,48 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    if (modeMenu.getSelectedId() - 1 == ClipperMode::Sinusoidal)
-        g.drawImage(backgroundImage2, getLocalBounds().toFloat());
-    else
-        g.drawImage(backgroundImage1, getLocalBounds().toFloat());
+    juce::Rectangle<float> bounds = getLocalBounds().toFloat();
+
+    if (modeMenu.getSelectedId() - 1 == ClipperMode::Sinusoidal) {
+        if (backgroundDrawable2 != nullptr) {
+            backgroundDrawable2->setTransformToFit(bounds, juce::RectanglePlacement::stretchToFit);
+            backgroundDrawable2->draw(g, 1.0f);
+        }
+    } else {
+        if (backgroundDrawable1 != nullptr) {
+            backgroundDrawable1->setTransformToFit(bounds, juce::RectanglePlacement::stretchToFit);
+            backgroundDrawable1->draw(g, 1.0f);
+        }
+    }
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-    thresholdSlider.setBounds(26, 68, 128, 128);
-    thresholdLabel.setBounds(48, 201, 84, 20);
-    gainSlider.setBounds(245, 68, 128, 128);
-    gainLabel.setBounds(267, 201, 84, 20);
-    exponentSlider.setBounds(165, 126, 70, 70);
-    exponentLabel.setBounds(158, 201, 84, 20);
-    tanhSlider.setBounds(165, 126, 70, 70);
-    tanhLabel.setBounds(158, 201, 84, 20);
-    modeMenu.setBounds(178, 246, 113, 31);
-    modeLabel.setBounds(105, 250, 84, 20);
+    float scale = (float) getWidth() / 400.0f; // Scale factor based on original width
+
+    // Scale each component's position and size
+    thresholdSlider.setBounds(juce::Rectangle<int>(26, 68, 128, 128).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+    thresholdLabel.setBounds(juce::Rectangle<int>(48, 201, 84, 20).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+
+    gainSlider.setBounds(juce::Rectangle<int>(245, 68, 128, 128).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+    gainLabel.setBounds(juce::Rectangle<int>(267, 201, 84, 20).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+
+    exponentSlider.setBounds(juce::Rectangle<int>(165, 126, 70, 70).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+    exponentLabel.setBounds(juce::Rectangle<int>(158, 201, 84, 20).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+
+    tanhSlider.setBounds(juce::Rectangle<int>(165, 126, 70, 70).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+    tanhLabel.setBounds(juce::Rectangle<int>(158, 201, 84, 20).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+
+    modeMenu.setBounds(juce::Rectangle<int>(178, 246, 113, 31).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+    modeLabel.setBounds(juce::Rectangle<int>(105, 250, 84, 20).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
+
+    float scaledFontSize = fontSize * scale;
+    thresholdLabel.setFont(thresholdLabel.getFont().withHeight(scaledFontSize));
+    gainLabel.setFont(gainLabel.getFont().withHeight(scaledFontSize));
+    tanhLabel.setFont(tanhLabel.getFont().withHeight(scaledFontSize));
+    exponentLabel.setFont(exponentLabel.getFont().withHeight(scaledFontSize));
+    modeLabel.setFont(modeLabel.getFont().withHeight(scaledFontSize));
+    comboBoxLookAndFeel.setFontSize(scaledFontSize);
 }
 
 void AudioPluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox *comboBox) {
