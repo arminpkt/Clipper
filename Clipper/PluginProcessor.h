@@ -44,11 +44,15 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-    juce::AudioProcessorValueTreeState params;
+    void initializePropertiesFile();
 
+    juce::AudioProcessorValueTreeState params;
+    float windowScale;
 private:
     //==============================================================================
     std::atomic<float>  *clipperMode, *thresholdInDB, *tanhCoefficient, *exponent, *gainInDB;
     std::vector<Clipper> clippers;
+    std::unique_ptr<juce::PropertiesFile> propertiesFile;
+    const juce::String windowScaleKey = {"windowScale"};
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

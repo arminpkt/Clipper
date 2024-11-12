@@ -13,6 +13,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      #endif
                        ), params(*this, nullptr, "Parameters", createParameterLayout())
 {
+    initializePropertiesFile();
+
     // Use the parameter ID to return a pointer to our parameter data
     clipperMode = params.getRawParameterValue("uMode");
     thresholdInDB = params.getRawParameterValue("uThreshold");
@@ -28,6 +30,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
+    propertiesFile->setValue(windowScaleKey, windowScale); // Save scale to properties file
+    propertiesFile->saveIfNeeded();
 }
 
 //==============================================================================
@@ -235,6 +239,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         "Mode", stringArray, 0));
 
     return layout;
+}
+
+void AudioPluginAudioProcessor::initializePropertiesFile()
+{
+    // Set up the options for the properties file
+    juce::PropertiesFile::Options options;
+    options.applicationName     = "Clipper";
+    options.filenameSuffix      = ".settings";  // Use a custom suffix
+    options.osxLibrarySubFolder = "Application Support"; // Save in Application Support folder on macOS
+    options.folderName          = "Armin/Clipper"; // Folder structure in AppData or Application Support
+    options.storageFormat       = juce::PropertiesFile::storeAsXML; // Store as XML (or use storeAsBinary)
+
+    // Create or load the properties file
+    propertiesFile = std::make_unique<juce::PropertiesFile>(options);
+
+    // Load the initial scale from properties, if it exists
+    windowScale = propertiesFile->getDoubleValue(windowScaleKey, 1.0f);
 }
 
 //==============================================================================

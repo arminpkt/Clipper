@@ -5,6 +5,15 @@
 
 #include "BinaryData.h"
 
+class CustomLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    void 	drawCornerResizer (juce::Graphics&, int, int, bool, bool) override
+    {
+        // Do nothing here to remove the default resizable corner icon
+    }
+};
+
 class CustomSliderLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
@@ -170,4 +179,54 @@ public:
         }
     }
 
+};
+
+class SliderLabel : public juce::Label
+{
+public:
+    SliderLabel(const juce::String& name) : sliderName(name)
+    {
+        setText(sliderName, juce::dontSendNotification);
+    }
+
+    void resetText()
+    {
+        setText(sliderName, juce::dontSendNotification);
+    }
+
+private:
+    juce::String sliderName;
+};
+
+class ClipperSlider : public juce::Slider {
+    public:
+        bool isHovered() {
+            return hovered;
+        }
+
+        void setHovered(bool isHovered) {
+            hovered = isHovered;
+        }
+    private:
+        bool hovered = {false};
+};
+
+class SliderLabelTimer : public juce::Timer
+{
+public:
+    SliderLabelTimer(ClipperSlider* slider, SliderLabel* label)
+        : slider(slider), label(label)
+    {}
+
+    void timerCallback() override
+    {
+        if (label && slider && !slider->isHovered())
+            label->resetText();
+
+        stopTimer(); // Stop the timer after resetting the label
+    }
+
+private:
+    ClipperSlider* slider;
+    SliderLabel* label;
 };

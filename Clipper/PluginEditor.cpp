@@ -4,15 +4,16 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor(&p), processorRef(p),
-    thresholdAttachment(processorRef.params, "uThreshold",thresholdSlider),
-    gainAttachment(processorRef.params, "uGain", gainSlider),
-    tanhAttachment(processorRef.params, "uTanh", tanhSlider),
-    exponentAttachment(processorRef.params, "uExponent", exponentSlider),
-    modeAttachment(processorRef.params, "uMode", modeMenu) {
+    : AudioProcessorEditor(&p), processorRef(p), thresholdLabel("Threshold"), gainLabel("Gain"), tanhLabel("Tanh"), exponentLabel("Exponent"),
+      thresholdAttachment(processorRef.params, "uThreshold", thresholdSlider),
+      gainAttachment(processorRef.params, "uGain", gainSlider),
+      tanhAttachment(processorRef.params, "uTanh", tanhSlider),
+      exponentAttachment(processorRef.params, "uExponent", exponentSlider),
+      modeAttachment(processorRef.params, "uMode", modeMenu) {
     juce::ignoreUnused(processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    setLookAndFeel(&customLookAndFeel);
 
     backgroundImage1 = juce::ImageFileFormat::loadFrom(BinaryData::clipperbg_png, BinaryData::clipperbg_pngSize);
     backgroundImage2 = juce::ImageFileFormat::loadFrom(BinaryData::clipperbg2_png, BinaryData::clipperbg2_pngSize);
@@ -20,89 +21,54 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     knobDrawable1 = juce::Drawable::createFromImageData(BinaryData::clipperknob1_svg, BinaryData::clipperknob1_svgSize);
     knobDrawable2 = juce::Drawable::createFromImageData(BinaryData::clipperknob2_svg, BinaryData::clipperknob2_svgSize);
 
-    //setSize(backgroundImage1.getWidth(), backgroundImage1.getHeight());
-    setSize(400, 290);
-    setResizable(true, true); // Allow resizing
-    setResizeLimits(400, 290, 800, 580); // Minimum and maximum sizes maintaining aspect ratio
-    getConstrainer()->setFixedAspectRatio(400.0 / 290.0); // Keep aspect ratio of 400x290 (original size)
-
-
     sliderLookAndFeel1 = std::make_unique<CustomSliderLookAndFeel>(knobDrawable1->createCopy());
     sliderLookAndFeel2 = std::make_unique<CustomSliderLookAndFeel>(knobDrawable2->createCopy());
 
+    clipperFont = {
+        juce::Typeface::createSystemTypefaceFor(BinaryData::PlusJakartaSans_Medium_ttf,
+                                                BinaryData::PlusJakartaSans_Medium_ttfSize)
+    };
+    //float fontSize = 18.f;
 
-    juce::FontOptions clipperFont = {juce::Typeface::createSystemTypefaceFor(BinaryData::PlusJakartaSans_Medium_ttf, BinaryData::PlusJakartaSans_Medium_ttfSize)};
-   //float fontSize = 18.f;
+    sliderLabelMap[&thresholdSlider] = &thresholdLabel;
+    sliderLabelMap[&gainSlider] = &gainLabel;
+    sliderLabelMap[&tanhSlider] = &tanhLabel;
+    sliderLabelMap[&exponentSlider] = &exponentLabel;
 
-    thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    thresholdSlider.setLookAndFeel(sliderLookAndFeel1.get());
-    thresholdSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
-    thresholdSlider.setPopupDisplayEnabled (true, true, this);
-    addAndMakeVisible (&thresholdSlider);
-
-    thresholdLabel.setFont(clipperFont.withHeight(fontSize));
-    thresholdLabel.setColour (juce::Label::textColourId, juce::Colour(126, 126, 126));
-    thresholdLabel.setJustificationType(juce::Justification::centred);
-    thresholdLabel.setText ("Threshold", juce::dontSendNotification);
-    addAndMakeVisible (&thresholdLabel);
-
-    gainSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    gainSlider.setLookAndFeel(sliderLookAndFeel1.get());
-    gainSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
-    gainSlider.setPopupDisplayEnabled (true, true, this);
-    addAndMakeVisible (&gainSlider);
-
-    gainLabel.setFont(clipperFont.withHeight(fontSize));
-    gainLabel.setColour (juce::Label::textColourId, juce::Colour(126, 126, 126));
-    gainLabel.setJustificationType(juce::Justification::centred);
-    gainLabel.setText ("Gain", juce::dontSendNotification);
-    addAndMakeVisible (&gainLabel);
-
-    tanhSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    tanhSlider.setLookAndFeel(sliderLookAndFeel2.get());
-    tanhSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
-    tanhSlider.setPopupDisplayEnabled (true, true, this);
-    addAndMakeVisible (&tanhSlider);
-
-    tanhLabel.setFont(clipperFont.withHeight(fontSize));
-    tanhLabel.setColour (juce::Label::textColourId, juce::Colour(126, 126, 126));
-    tanhLabel.setJustificationType(juce::Justification::centred);
-    tanhLabel.setText ("Tanh", juce::dontSendNotification);
-    addAndMakeVisible (&tanhLabel);
-
-    exponentSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    exponentSlider.setLookAndFeel(sliderLookAndFeel2.get());
-    exponentSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
-    exponentSlider.setPopupDisplayEnabled (true, true, this);
-    addAndMakeVisible (&exponentSlider);
-
-    exponentLabel.setFont(clipperFont.withHeight(fontSize));
-    exponentLabel.setColour (juce::Label::textColourId, juce::Colour(126, 126, 126));
-    exponentLabel.setJustificationType(juce::Justification::centred);
-    exponentLabel.setText ("Exponent", juce::dontSendNotification);
-    addAndMakeVisible (&exponentLabel);
+    setupSlider(thresholdSlider, sliderLookAndFeel1);
+    setupSlider(gainSlider, sliderLookAndFeel1);
+    setupSlider(tanhSlider, sliderLookAndFeel2);
+    setupSlider(exponentSlider, sliderLookAndFeel2);
 
     modeMenu.setLookAndFeel(&comboBoxLookAndFeel);
     modeMenu.setColour(juce::ComboBox::ColourIds::backgroundColourId, juce::Colour(220, 220, 220));
     modeMenu.setColour(juce::ComboBox::ColourIds::outlineColourId, juce::Colour(220, 220, 220));
     modeMenu.setColour(juce::ComboBox::ColourIds::textColourId, juce::Colour(126, 126, 126));
-    modeMenu.setColour(juce::PopupMenu::ColourIds::backgroundColourId, juce::Colour::fromFloatRGBA(220, 220, 220, 0.0f));
+    modeMenu.setColour(juce::PopupMenu::ColourIds::backgroundColourId,
+                       juce::Colour::fromFloatRGBA(220, 220, 220, 0.0f));
     modeMenu.addItem("Tanh", ClipperMode::Tanh + 1);
     modeMenu.addItem("Sinusoidal", ClipperMode::Sinusoidal + 1);
     modeMenu.addItem("Exponential", ClipperMode::Exponential + 1);
     modeMenu.addListener(this);
     modeMenu.setSelectedId(*processorRef.params.getRawParameterValue("uMode") + 1);
-    addAndMakeVisible (&modeMenu);
+    addAndMakeVisible(&modeMenu);
 
     modeLabel.setFont(clipperFont.withHeight(fontSize));
-    modeLabel.setColour (juce::Label::textColourId, juce::Colour(126, 126, 126));
+    modeLabel.setColour(juce::Label::textColourId, juce::Colour(126, 126, 126));
     modeLabel.setJustificationType(juce::Justification::centred);
-    modeLabel.setText ("Mode:", juce::dontSendNotification);
-    addAndMakeVisible (&modeLabel);
+    modeLabel.setText("Mode:", juce::dontSendNotification);
+    addAndMakeVisible(&modeLabel);
+
+    scale = processorRef.windowScale;
+    setSize(400 * scale, 290 * scale);
+    setResizable(true, true); // Allow resizing
+    setResizeLimits(400, 290, 800, 580); // Minimum and maximum sizes maintaining aspect ratio
+    getConstrainer()->setFixedAspectRatio(400.0 / 290.0); // Keep aspect ratio of 400x290 (original size)
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
+    setLookAndFeel(nullptr);
     thresholdSlider.setLookAndFeel(nullptr);
     gainSlider.setLookAndFeel(nullptr);
     tanhSlider.setLookAndFeel(nullptr);
@@ -126,7 +92,8 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    float scale = (float) getWidth() / 400.0f; // Scale factor based on original width
+    scale = static_cast<float>(getWidth()) / 400.0f;
+    processorRef.windowScale = scale;
 
     // Scale each component's position and size
     thresholdSlider.setBounds(juce::Rectangle<int>(26, 68, 128, 128).toFloat().transformedBy(juce::AffineTransform::scale(scale)).toNearestInt());
@@ -196,3 +163,125 @@ void AudioPluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox *comboBox) 
     }
 }
 
+void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
+{
+    if (auto* clipperSlider = dynamic_cast<ClipperSlider*>(slider))
+    {
+        // Check if the change is due to automation by seeing if the slider is dragged
+        if (clipperSlider->isMouseButtonDown()) {
+            // Perform any actions when the slider is being dragged by the user
+        } else {
+            // Start the timer for the specific ClipperSlider
+            sliderTimers[clipperSlider]->startTimer(600);
+        }
+        updateSliderLabel(clipperSlider);
+    }
+}
+
+void AudioPluginAudioProcessorEditor::sliderDragStarted(juce::Slider* slider)
+{
+    updateSliderLabel(slider);
+}
+
+void AudioPluginAudioProcessorEditor::sliderDragEnded(juce::Slider* slider)
+{
+    if (auto clipperSlider = dynamic_cast<ClipperSlider*>(slider))
+        if (!clipperSlider->isHovered())
+            sliderLabelMap[clipperSlider]->resetText();
+}
+
+void AudioPluginAudioProcessorEditor::mouseEnter(const juce::MouseEvent& event)
+{
+    if (auto* slider = dynamic_cast<ClipperSlider*>(event.eventComponent))
+    {
+        slider->setHovered(true);
+        updateSliderLabel(slider);
+    }
+}
+
+void AudioPluginAudioProcessorEditor::mouseExit(const juce::MouseEvent& event)
+{
+    if (auto* slider = dynamic_cast<ClipperSlider*>(event.eventComponent))
+    {
+        slider->setHovered(false);
+        sliderLabelMap[slider]->resetText();
+    }
+}
+
+/*void AudioPluginAudioProcessorEditor::timerCallback()
+{
+    if (isAutomationChange && lastSliderAutomated != nullptr)
+    {
+        sliderLabelMap[lastSliderAutomated]->resetText(); // Reset the label to the parameter name
+        stopTimer(); // Stop the timer
+        isAutomationChange = false; // Reset the automation flag
+    }
+}*/
+
+void AudioPluginAudioProcessorEditor::setupSlider(ClipperSlider& slider, const std::unique_ptr<CustomSliderLookAndFeel> &sliderLookAndFeel)
+{
+    slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    slider.setLookAndFeel(sliderLookAndFeel.get());
+    slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 90, 0);
+    slider.addListener(this);
+    slider.setInterceptsMouseClicks(true, false);
+    slider.addMouseListener(this, false);
+    addChildComponent(&slider);
+    sliderTimers[&slider] = std::make_unique<SliderLabelTimer>(&slider, sliderLabelMap[&slider]);
+
+    auto label = sliderLabelMap[&slider];
+    label->setFont(clipperFont.withHeight(fontSize));
+    label->setColour(juce::Label::textColourId, juce::Colour(126, 126, 126));
+    label->setJustificationType(juce::Justification::centred);
+    addChildComponent(label);
+}
+
+// Helper function to set label text to parameter value
+void AudioPluginAudioProcessorEditor::updateSliderLabel(juce::Slider* slider)
+{
+    juce::Label* targetLabel = nullptr;
+    juce::String valueText;
+
+    if (slider == &thresholdSlider)
+    {
+        targetLabel = &thresholdLabel;
+        if (auto* param = processorRef.params.getParameter("uThreshold"))
+            valueText = param->getCurrentValueAsText();
+    }
+    else if (slider == &gainSlider)
+    {
+        targetLabel = &gainLabel;
+        if (auto* param = processorRef.params.getParameter("uGain"))
+            valueText = param->getCurrentValueAsText();
+    }
+    else if (slider == &tanhSlider)
+    {
+        targetLabel = &tanhLabel;
+        if (auto* param = processorRef.params.getParameter("uTanh"))
+            valueText = param->getCurrentValueAsText();
+    }
+    else if (slider == &exponentSlider)
+    {
+        targetLabel = &exponentLabel;
+        if (auto* param = processorRef.params.getParameter("uExponent"))
+            valueText = param->getCurrentValueAsText();
+    }
+
+    if (targetLabel != nullptr)
+    {
+        targetLabel->setText(valueText, juce::dontSendNotification);
+    }
+}
+
+// Helper function to reset label text to the slider's name
+/*void AudioPluginAudioProcessorEditor::resetSliderLabel(juce::Slider* slider)
+{
+    if (slider == &thresholdSlider)
+        thresholdLabel.setText("Threshold", juce::dontSendNotification);
+    else if (slider == &gainSlider)
+        gainLabel.setText("Gain", juce::dontSendNotification);
+    else if (slider == &tanhSlider)
+        tanhLabel.setText("Tanh", juce::dontSendNotification);
+    else if (slider == &exponentSlider)
+        exponentLabel.setText("Exponent", juce::dontSendNotification);
+}*/
