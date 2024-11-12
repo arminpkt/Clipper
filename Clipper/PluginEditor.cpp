@@ -28,7 +28,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         juce::Typeface::createSystemTypefaceFor(BinaryData::PlusJakartaSans_Medium_ttf,
                                                 BinaryData::PlusJakartaSans_Medium_ttfSize)
     };
-    //float fontSize = 18.f;
 
     sliderLabelMap[&thresholdSlider] = &thresholdLabel;
     sliderLabelMap[&gainSlider] = &gainLabel;
@@ -208,16 +207,6 @@ void AudioPluginAudioProcessorEditor::mouseExit(const juce::MouseEvent& event)
     }
 }
 
-/*void AudioPluginAudioProcessorEditor::timerCallback()
-{
-    if (isAutomationChange && lastSliderAutomated != nullptr)
-    {
-        sliderLabelMap[lastSliderAutomated]->resetText(); // Reset the label to the parameter name
-        stopTimer(); // Stop the timer
-        isAutomationChange = false; // Reset the automation flag
-    }
-}*/
-
 void AudioPluginAudioProcessorEditor::setupSlider(ClipperSlider& slider, const std::unique_ptr<CustomSliderLookAndFeel> &sliderLookAndFeel)
 {
     slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -272,16 +261,3 @@ void AudioPluginAudioProcessorEditor::updateSliderLabel(juce::Slider* slider)
         targetLabel->setText(valueText, juce::dontSendNotification);
     }
 }
-
-// Helper function to reset label text to the slider's name
-/*void AudioPluginAudioProcessorEditor::resetSliderLabel(juce::Slider* slider)
-{
-    if (slider == &thresholdSlider)
-        thresholdLabel.setText("Threshold", juce::dontSendNotification);
-    else if (slider == &gainSlider)
-        gainLabel.setText("Gain", juce::dontSendNotification);
-    else if (slider == &tanhSlider)
-        tanhLabel.setText("Tanh", juce::dontSendNotification);
-    else if (slider == &exponentSlider)
-        exponentLabel.setText("Exponent", juce::dontSendNotification);
-}*/

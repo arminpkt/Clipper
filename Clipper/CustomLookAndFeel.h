@@ -74,8 +74,6 @@ public:
                           int buttonX, int buttonY, int buttonW, int buttonH,
                           juce::ComboBox& box) override
     {
-        //auto cornerSize = box.findParentComponentOfClass<juce::ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
-        //setColour(juce::PopupMenu::backgroundColourId, juce::Colour(226, 226, 226).withAlpha (0.99f));
         auto cornerSize = 7.0f;
         juce::Rectangle<int> boxBounds (0, 0, width, height);
 
@@ -101,17 +99,10 @@ public:
         return withDefaultMetrics (clipperFont.withHeight(fontSize));
     }
 
-    /*void getPopupMenuWindowSize (int numItems, int width, int height, int& newWidth, int& newHeight) override
-    {
-        newWidth = width;  // Set the popup menu width to match the ComboBox width
-        newHeight = height; // Keep the height as per default or adjust if necessary
-    }*/
-
     // Draw the popup menu when the ComboBox is clicked
     void drawPopupMenuBackground(juce::Graphics& g, int width, int height) override
     {
         // Set a rounded rectangle background for the menu
-        //setColour(juce::PopupMenu::backgroundColourId, juce::Colour(0, 0, 0).withAlpha (0.5f));
         juce::Rectangle<float> backgroundRect(0, 0, (float)width, (float)height);
         auto cornerSize = 7.0f; // Radius for rounded edges
         g.setColour(findColour (juce::PopupMenu::backgroundColourId).withAlpha(1.f)); // Background color of the menu

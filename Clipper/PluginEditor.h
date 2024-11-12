@@ -55,8 +55,5 @@ private:
     juce::FontOptions clipperFont;
     float scale;
     float fontSize = {18.0f};
-    bool sliderIsHovered = false;
-    bool isAutomationChange = false;
-    juce::Slider* lastSliderAutomated = nullptr;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
