@@ -11,8 +11,6 @@ enum ClipperMode {
   Tanh,
   Sinusoidal,
   Exponential
-  //TSQ, //two stage quadratic
-  //Cubic
 };
 
 struct Clipper {
@@ -30,31 +28,39 @@ struct Clipper {
     double output = input;
     double thresh = threshold.getNextValue();
     double nextGain = gain.getNextValue();
+    double sig = sgn(input);
     switch (mode) {
       case Tanh:
         // old: output = juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue() * input) / juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue());
         if (abs(input) > thresh) {
-          output = sgn(input) * (thresh + juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue() * (abs(input) - thresh)));
+          output = sig * (thresh + juce::dsp::FastMathApproximations::tanh (tanhCoefficient.getNextValue() * (abs(input) - thresh)));
         }
         output *= nextGain;
         break;
 
       case Sinusoidal:
-        if (abs(input) > thresh) {
+        /*if (abs(input) > thresh) {
           output = sgn(input);
         } else {
           output = sin(((1/(2 * thresh)) * pi * input));
         }
+        output *= thresh * nextGain;*/
+        if (abs(input) > thresh)
+          output = sig * (thresh + 0.6 * sin(0.5 * pi * abs(input - sig * thresh)));
         output *= thresh * nextGain;
         break;
 
       case Exponential:
-        if (abs(input) > thresh) {
+        /*if (abs(input) > thresh) {
           output = sgn(input);
         } else {
           output = sgn(input) * (1 - pow(abs((1/thresh) * input - sgn(input)), exponent.getNextValue()));
         }
-        output *= thresh * nextGain;
+        output *= thresh * nextGain;*/
+
+        if (abs(input) > thresh)
+          output = sig * (thresh + (1 - pow(abs(0.1 * (input - sig * thresh) - sig ), exponent.getNextValue())));
+        output *= nextGain;
         break;
     }
 

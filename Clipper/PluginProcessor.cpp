@@ -224,7 +224,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
         "Tanh", 0.1, 10.0, 1.0));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uExponent", 1},
-        "Exp", 0.1, 10.0, 2));
+        "Exp", 0.1, 50.0, 10));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uGain", 1},
         "Gain", juce::NormalisableRange<float>(-70.0, 6.0, 0.01, 2.5),
         0.0, juce::String(), juce::AudioProcessorParameter::genericParameter,
