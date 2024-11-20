@@ -24,7 +24,6 @@ public:
     void mouseExit(const juce::MouseEvent &event) override;
 
     void updateSliderLabel(juce::Slider *slider);
-    void resetSliderLabel(juce::Slider *slider);
     void setupSlider(ClipperSlider &slider, const std::unique_ptr<CustomSliderLookAndFeel> &sliderLookAndFeel);
 
 private:
