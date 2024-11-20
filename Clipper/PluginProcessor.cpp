@@ -144,7 +144,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
     juce::ignoreUnused (midiMessages);
-    DBG (juce::Decibels::decibelsToGain(thresholdInDB->load()));
     for(auto & clipper : clippers){
       clipper.setMode(static_cast<ClipperMode>(clipperMode->load()));
       clipper.setThreshold(juce::Decibels::decibelsToGain(thresholdInDB->load()));
@@ -172,13 +171,13 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* writePointer = buffer.getWritePointer (channel);
         auto* readPointer = buffer.getReadPointer (channel);
 		for(auto sample = 0; sample < buffer.getNumSamples(); ++sample){
 			//writePointer[sample] = juce::dsp::FastMathApproximations::tanh (5 * readPointer[sample]);
-		    writePointer[sample] = clippers[channel].process(readPointer[sample]);
+		    writePointer[sample] = static_cast<float>(clippers[static_cast<std::vector<Clipper>::size_type>(channel)].process(readPointer[sample]));
 		}
     }
 }
@@ -218,7 +217,7 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout() {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uThreshold", 1},
-        "Threshold", juce::NormalisableRange<float>(-51.8, 0, 0.01, 3.0),
+        "Threshold", juce::NormalisableRange<float>(-51.8f, 0.f, 0.01f, 3.0f),
         -4.4, juce::String(), juce::AudioProcessorParameter::genericParameter,
         [](float value, int) { return juce::String(value, 2) + " dB"; }));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uTanh", 1},
@@ -226,7 +225,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uExponent", 1},
         "Exp", 0.1, 50.0, 10));
     layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "uGain", 1},
-        "Gain", juce::NormalisableRange<float>(-70.0, 6.0, 0.01, 2.5),
+        "Gain", juce::NormalisableRange<float>(-70.0f, 6.0f, 0.01f, 2.5f),
         0.0, juce::String(), juce::AudioProcessorParameter::genericParameter,
         [](float value, int) {
             return value <= -70.f ? "-inf dB" : juce::String(value, 2) + " dB";
@@ -255,7 +254,7 @@ void AudioPluginAudioProcessor::initializePropertiesFile()
     propertiesFile = std::make_unique<juce::PropertiesFile>(options);
 
     // Load the initial scale from properties, if it exists
-    windowScale = propertiesFile->getDoubleValue(windowScaleKey, 1.0f);
+    windowScale = static_cast<float>(propertiesFile->getDoubleValue(windowScaleKey, 1.0f));
 }
 
 //==============================================================================

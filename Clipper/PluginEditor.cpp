@@ -49,7 +49,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     modeMenu.addItem("Sinusoidal", ClipperMode::Sinusoidal + 1);
     modeMenu.addItem("Exponential", ClipperMode::Exponential + 1);
     modeMenu.addListener(this);
-    modeMenu.setSelectedId(*processorRef.params.getRawParameterValue("uMode") + 1);
+    modeMenu.setSelectedId(static_cast<int>(*processorRef.params.getRawParameterValue("uMode")) + 1);
     addAndMakeVisible(&modeMenu);
 
     modeLabel.setFont(clipperFont.withHeight(fontSize));
@@ -59,7 +59,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible(&modeLabel);
 
     scale = processorRef.windowScale;
-    setSize(400 * scale, 290 * scale);
+    setSize(static_cast<int>(400 * scale), static_cast<int>(290 * scale));
     setResizable(true, true); // Allow resizing
     setResizeLimits(400, 290, 800, 580); // Minimum and maximum sizes maintaining aspect ratio
     getConstrainer()->setFixedAspectRatio(400.0 / 290.0); // Keep aspect ratio of 400x290 (original size)

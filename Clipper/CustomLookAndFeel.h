@@ -20,7 +20,7 @@ public:
     CustomSliderLookAndFeel(std::unique_ptr<juce::Drawable> kD) : knobDrawable(std::move(kD)) {}
 
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
-                          float sliderPos, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override
+                          float sliderPos, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& /*slider*/) override
     {
         if (knobDrawable != nullptr) {
             const float rotation = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
@@ -65,13 +65,13 @@ public:
         fontSize = newSize;
     }
 
-    juce::Font getComboBoxFont (juce::ComboBox& box)
+    juce::Font getComboBoxFont (juce::ComboBox& /*box*/) override
     {
         return withDefaultMetrics (clipperFont).withHeight(fontSize);
     }
 
-    void drawComboBox (juce::Graphics& g, int width, int height, bool isButtonDown,
-                          int buttonX, int buttonY, int buttonW, int buttonH,
+    void drawComboBox (juce::Graphics& g, int width, int height, bool /*isButtonDown*/,
+                          int /*buttonX*/, int /*buttonY*/, int /*buttonW*/, int /*buttonH*/,
                           juce::ComboBox& box) override
     {
         auto cornerSize = 7.0f;
@@ -84,17 +84,17 @@ public:
         g.drawRoundedRectangle (boxBounds.toFloat().reduced (0.5f, 0.5f), cornerSize, 1.0f);
     }
 
-    void positionComboBoxText (juce::ComboBox& box, juce::Label& label)
+    void positionComboBoxText (juce::ComboBox& box, juce::Label& label) override
     {
         label.setBounds (1, 1,
                          box.getWidth(),
-                         box.getHeight()*0.9f);
+                         static_cast<int>(box.getHeight()*0.9f));
 
         label.setFont (getComboBoxFont (box));
         label.setJustificationType (juce::Justification::centred);
     }
 
-    juce::Font getPopupMenuFont()
+    juce::Font getPopupMenuFont() override
     {
         return withDefaultMetrics (clipperFont.withHeight(fontSize));
     }
@@ -112,10 +112,10 @@ public:
 
     void drawPopupMenuItem (juce::Graphics& g, const juce::Rectangle<int>& area,
                                         const bool isSeparator, const bool isActive,
-                                        const bool isHighlighted, const bool isTicked,
-                                        const bool hasSubMenu, const juce::String& text,
+                                        const bool isHighlighted, const bool /*isTicked*/,
+                                        const bool /*hasSubMenu*/, const juce::String& text,
                                         const juce::String& shortcutKeyText,
-                                        const juce::Drawable* icon, const juce::Colour* const textColourToUse)
+                                        const juce::Drawable* /*icon*/, const juce::Colour* const textColourToUse) override
     {
         if (isSeparator)
         {
@@ -205,8 +205,8 @@ class ClipperSlider : public juce::Slider {
 class SliderLabelTimer : public juce::Timer
 {
 public:
-    SliderLabelTimer(ClipperSlider* slider, SliderLabel* label)
-        : slider(slider), label(label)
+    SliderLabelTimer(ClipperSlider* s, SliderLabel* l)
+        : slider(s), label(l)
     {}
 
     void timerCallback() override
