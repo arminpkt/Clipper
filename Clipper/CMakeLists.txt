@@ -10,12 +10,12 @@ juce_add_plugin(Clipper
     # NEEDS_MIDI_OUTPUT TRUE/FALSE              
     # IS_MIDI_EFFECT TRUE/FALSE                 
     # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    
-    # COPY_PLUGIN_AFTER_BUILD TRUE/FALSE        
+    COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE AP44               
-    PLUGIN_CODE Clpr                            
+    PLUGIN_CODE Tclp
       
     FORMATS AU VST3 Standalone                  
-    PRODUCT_NAME "Clipper")
+    PRODUCT_NAME "TeemClipper")
 
 #juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperbg2.png Resources/clipperknob1.png Resources/clipperknob2.png Resources/PlusJakartaSans_Medium.ttf)
 juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperbg2.png Resources/clipperknob1.svg Resources/clipperknob2.svg Resources/PlusJakartaSans_Medium.ttf)
@@ -35,6 +35,7 @@ target_compile_definitions(Clipper
 target_link_libraries(Clipper
     PRIVATE
         juce::juce_audio_utils
+        juce::juce_dsp
         ClipperBinaryData
     PUBLIC
         juce::juce_recommended_config_flags

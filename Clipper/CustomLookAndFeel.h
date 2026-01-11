@@ -54,7 +54,6 @@ public:
         setColour(juce::PopupMenu::highlightedBackgroundColourId, juce::Colour(220, 220, 220));
         setColour(juce::PopupMenu:: textColourId, juce::Colour(126, 126, 126));
         setColour(juce::PopupMenu:: highlightedTextColourId, juce::Colour(126, 126, 126));
-
     }
 
     juce::FontOptions clipperFont = {juce::Typeface::createSystemTypefaceFor(BinaryData::PlusJakartaSans_Medium_ttf, BinaryData::PlusJakartaSans_Medium_ttfSize)};

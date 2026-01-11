@@ -48,6 +48,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     modeMenu.addItem("Tanh", ClipperMode::Tanh + 1);
     modeMenu.addItem("Sinusoidal", ClipperMode::Sinusoidal + 1);
     modeMenu.addItem("Exponential", ClipperMode::Exponential + 1);
+    modeMenu.addItem("Soft Clip Pro", ClipperMode::SoftClipPro + 1);
     modeMenu.addListener(this);
     modeMenu.setSelectedId(static_cast<int>(*processorRef.params.getRawParameterValue("uMode")) + 1);
     addAndMakeVisible(&modeMenu);
@@ -63,6 +64,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     setResizable(true, true); // Allow resizing
     setResizeLimits(400, 290, 800, 580); // Minimum and maximum sizes maintaining aspect ratio
     getConstrainer()->setFixedAspectRatio(400.0 / 290.0); // Keep aspect ratio of 400x290 (original size)
+    //comboBoxChanged(&modeMenu); // set initial control visibility for selected mode
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -153,10 +155,18 @@ void AudioPluginAudioProcessorEditor::comboBoxChanged(juce::ComboBox *comboBox) 
                 gainSlider.setVisible(true);
                 gainLabel.setVisible(true);
                 break;
+
+            case ClipperMode::SoftClipPro:
+                thresholdSlider.setVisible(true);
+                thresholdLabel.setVisible(true);
+                gainSlider.setVisible(true);
+                gainLabel.setVisible(true);
+                break;
             default:
                 break;
         }
 
+        DBG("Mode selectedId=" << modeMenu.getSelectedId() << " param uMode=" << processorRef.params.getRawParameterValue("uMode")->load());
         repaint();
         resized();
     }

@@ -234,6 +234,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     stringArray.add ("Tanh");
     stringArray.add ("Sinusoidal");
     stringArray.add ("Exponential");
+    stringArray.add ("Soft Clip Pro");
     layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID {"uMode", 1},
         "Mode", stringArray, 0));
 
