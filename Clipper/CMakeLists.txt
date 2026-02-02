@@ -1,5 +1,9 @@
 project(Clipper VERSION 0.0.1)
 
+if (APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+endif()
+
 juce_add_plugin(Clipper
     VERSION 0.0.1                              
     # ICON_BIG ...                              
@@ -12,10 +16,10 @@ juce_add_plugin(Clipper
     # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    
     COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE AP44               
-    PLUGIN_CODE Tclp
+    PLUGIN_CODE Clpr
       
     FORMATS AU VST3 Standalone                  
-    PRODUCT_NAME "TeemClipper")
+    PRODUCT_NAME "Clipper")
 
 #juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperbg2.png Resources/clipperknob1.png Resources/clipperknob2.png Resources/PlusJakartaSans_Medium.ttf)
 juce_add_binary_data(ClipperBinaryData SOURCES Resources/clipperbg.png Resources/clipperbg2.png Resources/clipperknob1.svg Resources/clipperknob2.svg Resources/PlusJakartaSans_Medium.ttf)
